@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "send-discord-webhook",
+  "type": "registry:item",
+  "description": "Send messages to Discord channels via webhooks",
+  "dependencies": [],
+  "files": [
+    {
+      "path": "steps/send-discord-webhook.ts",
+      "content": "import { FatalError } from \"workflow\"\n\ninterface SendDiscordWebhookParams {\n  webhookUrl: string\n  content?: string\n  embeds?: Array<{\n    title?: string\n    description?: string\n    color?: number\n    fields?: Array<{ name: string; value: string; inline?: boolean }>\n  }>\n  username?: string\n  avatarUrl?: string\n}\n\n/**\n * Send a message to Discord via webhook with automatic retries.\n *\n * This step is perfect for sending notifications, alerts, and updates\n * to Discord channels without needing a bot.\n *\n * @param webhookUrl - Discord webhook URL\n * @param content - Message text content\n * @param embeds - Rich embed objects for formatted messages\n * @param username - Override webhook username\n * @param avatarUrl - Override webhook avatar\n * @returns Success status\n */\nexport async function sendDiscordWebhook({\n  webhookUrl,\n  content,\n  embeds,\n  username,\n  avatarUrl,\n}: SendDiscordWebhookParams) {\n  \"use step\"\n\n  if (!webhookUrl || !webhookUrl.includes(\"discord.com/api/webhooks/\")) {\n    throw new FatalError(\"Invalid Discord webhook URL\")\n  }\n\n  if (!content && (!embeds || embeds.length === 0)) {\n    throw new FatalError(\"Must provide either content or embeds\")\n  }\n\n  try {\n    const response = await fetch(webhookUrl, {\n      method: \"POST\",\n      headers: {\n        \"Content-Type\": \"application/json\",\n      },\n      body: JSON.stringify({\n        content,\n        embeds,\n        username,\n        avatar_url: avatarUrl,\n      }),\n    })\n\n    if (response.status === 404) {\n      throw new FatalError(\"Webhook not found - check your webhook URL\")\n    }\n\n    if (response.status === 400) {\n      const error = await response.text()\n      throw new FatalError(`Invalid webhook payload: ${error}`)\n    }\n\n    if (!response.ok) {\n      throw new Error(`Discord webhook failed: ${response.status}`)\n    }\n\n    return {\n      success: true,\n      status: response.status,\n    }\n  } catch (error: any) {\n    if (error instanceof FatalError) {\n      throw error\n    }\n    // Network errors should retry\n    throw error\n  }\n}\n",
+      "type": "registry:file",
+      "target": "steps/send-discord-webhook.ts"
+    }
+  ]
+}

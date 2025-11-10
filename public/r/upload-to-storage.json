@@ -1,0 +1,17 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "upload-to-storage",
+  "type": "registry:item",
+  "description": "Upload files to Vercel Blob storage with progress tracking",
+  "dependencies": [
+    "@vercel/blob"
+  ],
+  "files": [
+    {
+      "path": "steps/upload-to-storage.ts",
+      "content": "import { put } from \"@vercel/blob\"\nimport { FatalError } from \"workflow\"\n\ninterface UploadToStorageParams {\n  filename: string\n  content: string | Buffer | ReadableStream\n  contentType?: string\n  access?: \"public\" | \"private\"\n}\n\n/**\n * Upload a file to Vercel Blob storage with automatic retries.\n *\n * This step handles file uploads to cloud storage, making it easy to\n * store generated files, user uploads, or processed data.\n *\n * @param filename - Name for the file in storage\n * @param content - File content (string, Buffer, or stream)\n * @param contentType - MIME type (e.g., 'image/png', 'application/pdf')\n * @param access - Access level ('public' or 'private')\n * @returns URL of the uploaded file\n */\nexport async function uploadToStorage({\n  filename,\n  content,\n  contentType = \"application/octet-stream\",\n  access = \"public\",\n}: UploadToStorageParams) {\n  \"use step\"\n\n  const blobToken = process.env.BLOB_READ_WRITE_TOKEN\n\n  if (!blobToken) {\n    throw new FatalError(\"BLOB_READ_WRITE_TOKEN environment variable is not configured\")\n  }\n\n  if (!filename || filename.length === 0) {\n    throw new FatalError(\"Filename cannot be empty\")\n  }\n\n  try {\n    const blob = await put(filename, content, {\n      access,\n      contentType,\n      token: blobToken,\n    })\n\n    return {\n      url: blob.url,\n      pathname: blob.pathname,\n      contentType: blob.contentType,\n      size: blob.size,\n    }\n  } catch (error: any) {\n    // Most blob errors are configuration issues\n    if (error.message?.includes(\"token\") || error.message?.includes(\"unauthorized\")) {\n      throw new FatalError(`Storage upload failed: ${error.message}`)\n    }\n\n    // Network errors should retry\n    throw error\n  }\n}\n",
+      "type": "registry:file",
+      "target": "steps/upload-to-storage.ts"
+    }
+  ]
+}

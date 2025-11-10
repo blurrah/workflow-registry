@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "send-webhook",
+  "type": "registry:item",
+  "description": "Send webhook notifications with signature verification",
+  "dependencies": [],
+  "files": [
+    {
+      "path": "steps/send-webhook.ts",
+      "content": "import { FatalError } from \"workflow\"\n\ninterface SendWebhookOptions {\n  url: string\n  payload: Record<string, any>\n  method?: \"POST\" | \"PUT\" | \"PATCH\"\n  headers?: Record<string, string>\n  secret?: string\n}\n\n/**\n * Send webhook notifications with signature verification\n *\n * @example\n * const response = await sendWebhook({\n *   url: 'https://api.example.com/webhook',\n *   payload: { event: 'user.created', userId: '123' },\n *   secret: process.env.WEBHOOK_SECRET\n * });\n */\nexport async function sendWebhook(options: SendWebhookOptions) {\n  \"use step\"\n\n  const { url, payload, method = \"POST\", headers = {}, secret } = options\n\n  if (!url) {\n    throw new FatalError(\"url is required\")\n  }\n\n  if (!payload) {\n    throw new FatalError(\"payload is required\")\n  }\n\n  const body = JSON.stringify(payload)\n  const requestHeaders: Record<string, string> = {\n    \"Content-Type\": \"application/json\",\n    ...headers,\n  }\n\n  // Add signature if secret is provided\n  if (secret) {\n    const crypto = await import(\"crypto\")\n    const signature = crypto.createHmac(\"sha256\", secret).update(body).digest(\"hex\")\n    requestHeaders[\"X-Webhook-Signature\"] = signature\n  }\n\n  const response = await fetch(url, {\n    method,\n    headers: requestHeaders,\n    body,\n  })\n\n  if (!response.ok) {\n    const errorText = await response.text()\n    throw new Error(`Webhook failed (${response.status}): ${errorText}`)\n  }\n\n  const responseData = response.headers.get(\"content-type\")?.includes(\"json\")\n    ? await response.json()\n    : await response.text()\n\n  return {\n    status: response.status,\n    statusText: response.statusText,\n    data: responseData,\n  }\n}\n",
+      "type": "registry:file",
+      "target": "steps/send-webhook.ts"
+    }
+  ]
+}

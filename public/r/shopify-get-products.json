@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "shopify-get-products",
+  "type": "registry:item",
+  "description": "Get products from Shopify store",
+  "dependencies": [],
+  "files": [
+    {
+      "path": "steps/shopify-get-products.ts",
+      "content": "/**\n * Get products from Shopify store\n *\n * @param shopDomain - Your Shopify shop domain (e.g., 'mystore.myshopify.com')\n * @param limit - Maximum number of products to return (default: 50)\n * @returns Array of products with details\n *\n * @env SHOPIFY_ACCESS_TOKEN - Shopify Admin API access token\n */\n\nimport { FatalError } from \"workflow\"\n\ninterface GetProductsOptions {\n  shopDomain: string\n  limit?: number\n}\n\nexport async function shopifyGetProducts({ shopDomain, limit = 50 }: GetProductsOptions) {\n  \"use step\"\n\n  const accessToken = process.env.SHOPIFY_ACCESS_TOKEN\n  if (!accessToken) {\n    throw new FatalError(\"SHOPIFY_ACCESS_TOKEN environment variable is required\")\n  }\n\n  if (!shopDomain) {\n    throw new FatalError(\"shopDomain is required\")\n  }\n\n  const url = `https://${shopDomain}/admin/api/2024-01/products.json?limit=${limit}`\n\n  const response = await fetch(url, {\n    headers: {\n      \"X-Shopify-Access-Token\": accessToken,\n    },\n  })\n\n  if (!response.ok) {\n    const error = await response.text()\n    throw new Error(`Failed to get Shopify products: ${error}`)\n  }\n\n  const data = await response.json()\n  return {\n    products: data.products.map((product: any) => ({\n      id: product.id,\n      title: product.title,\n      handle: product.handle,\n      variants: product.variants,\n      images: product.images,\n    })),\n  }\n}\n",
+      "type": "registry:file",
+      "target": "steps/shopify-get-products.ts"
+    }
+  ]
+}

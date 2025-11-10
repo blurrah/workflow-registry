@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "fetch-api-data",
+  "type": "registry:item",
+  "description": "Fetch data from external APIs with automatic retries",
+  "dependencies": [],
+  "files": [
+    {
+      "path": "steps/fetch-api-data.ts",
+      "content": "import { FatalError } from \"workflow\"\n\ninterface FetchAPIDataParams {\n  url: string\n  method?: \"GET\" | \"POST\" | \"PUT\" | \"DELETE\" | \"PATCH\"\n  headers?: Record<string, string>\n  body?: any\n  timeout?: number\n}\n\n/**\n * Fetch data from an external API with automatic retries for transient failures.\n *\n * This step handles network errors, timeouts, and rate limits automatically\n * by retrying the request. It throws FatalError for 4xx client errors that\n * shouldn't be retried.\n *\n * @param url - The API endpoint URL\n * @param method - HTTP method (default: 'GET')\n * @param headers - HTTP headers to include\n * @param body - Request body for POST/PUT/PATCH\n * @param timeout - Request timeout in milliseconds (default: 30000)\n * @returns Parsed JSON response\n */\nexport async function fetchAPIData({ url, method = \"GET\", headers = {}, body, timeout = 30000 }: FetchAPIDataParams) {\n  \"use step\"\n\n  if (!url || !url.startsWith(\"http\")) {\n    throw new FatalError(\"Invalid URL provided\")\n  }\n\n  const controller = new AbortController()\n  const timeoutId = setTimeout(() => controller.abort(), timeout)\n\n  try {\n    const response = await fetch(url, {\n      method,\n      headers: {\n        \"Content-Type\": \"application/json\",\n        ...headers,\n      },\n      body: body ? JSON.stringify(body) : undefined,\n      signal: controller.signal,\n    })\n\n    clearTimeout(timeoutId)\n\n    // 4xx errors are client errors and should not be retried\n    if (response.status >= 400 && response.status < 500) {\n      const errorText = await response.text()\n      throw new FatalError(`API client error (${response.status}): ${errorText}`)\n    }\n\n    // 5xx errors and network issues will retry automatically\n    if (!response.ok) {\n      throw new Error(`API error: ${response.status} ${response.statusText}`)\n    }\n\n    const data = await response.json()\n\n    return {\n      data,\n      status: response.status,\n      headers: Object.fromEntries(response.headers.entries()),\n    }\n  } catch (error: any) {\n    clearTimeout(timeoutId)\n\n    if (error.name === \"AbortError\") {\n      throw new Error(\"Request timeout - will retry\")\n    }\n\n    throw error\n  }\n}\n",
+      "type": "registry:file",
+      "target": "steps/fetch-api-data.ts"
+    }
+  ]
+}

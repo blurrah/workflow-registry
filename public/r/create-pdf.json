@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "create-pdf",
+  "type": "registry:item",
+  "description": "Generate PDF documents from HTML templates",
+  "dependencies": [],
+  "files": [
+    {
+      "path": "steps/create-pdf.ts",
+      "content": "import { FatalError } from \"workflow\"\n\ninterface CreatePDFParams {\n  html: string\n  filename?: string\n  options?: {\n    format?: \"A4\" | \"Letter\"\n    margin?: {\n      top?: string\n      right?: string\n      bottom?: string\n      left?: string\n    }\n  }\n}\n\n/**\n * Generate a PDF document from HTML content.\n *\n * This step converts HTML to PDF, useful for generating reports,\n * invoices, certificates, and other documents in your workflows.\n *\n * Note: This example uses a hypothetical PDF service. In production,\n * you would integrate with services like Puppeteer, Playwright, or\n * a PDF generation API.\n *\n * @param html - HTML content to convert to PDF\n * @param filename - Output filename\n * @param options - PDF generation options\n * @returns PDF buffer and metadata\n */\nexport async function createPDF({ html, filename = \"document.pdf\", options = {} }: CreatePDFParams) {\n  \"use step\"\n\n  if (!html || html.trim().length === 0) {\n    throw new FatalError(\"HTML content cannot be empty\")\n  }\n\n  const pdfServiceUrl = process.env.PDF_SERVICE_URL\n\n  if (!pdfServiceUrl) {\n    throw new FatalError(\"PDF_SERVICE_URL environment variable is not configured\")\n  }\n\n  try {\n    const response = await fetch(pdfServiceUrl, {\n      method: \"POST\",\n      headers: {\n        \"Content-Type\": \"application/json\",\n      },\n      body: JSON.stringify({\n        html,\n        options: {\n          format: options.format || \"A4\",\n          margin: options.margin || {\n            top: \"1cm\",\n            right: \"1cm\",\n            bottom: \"1cm\",\n            left: \"1cm\",\n          },\n        },\n      }),\n    })\n\n    if (!response.ok) {\n      throw new Error(`PDF generation failed: ${response.status}`)\n    }\n\n    const buffer = await response.arrayBuffer()\n\n    return {\n      buffer: Buffer.from(buffer),\n      filename,\n      contentType: \"application/pdf\",\n      size: buffer.byteLength,\n    }\n  } catch (error: any) {\n    if (error.message?.includes(\"configuration\") || error.message?.includes(\"unauthorized\")) {\n      throw new FatalError(`PDF service error: ${error.message}`)\n    }\n\n    throw error\n  }\n}\n",
+      "type": "registry:file",
+      "target": "steps/create-pdf.ts"
+    }
+  ]
+}

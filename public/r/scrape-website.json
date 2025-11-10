@@ -1,0 +1,17 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "scrape-website",
+  "type": "registry:item",
+  "description": "Scrape website content using Puppeteer",
+  "dependencies": [
+    "puppeteer"
+  ],
+  "files": [
+    {
+      "path": "steps/scrape-website.ts",
+      "content": "import { FatalError } from \"workflow\"\n\ninterface ScrapeWebsiteOptions {\n  url: string\n  selector?: string\n  waitFor?: number\n}\n\n/**\n * Scrape website content using Puppeteer\n *\n * @example\n * const data = await scrapeWebsite({\n *   url: 'https://example.com',\n *   selector: '.product-price',\n *   waitFor: 2000\n * });\n */\nexport async function scrapeWebsite(options: ScrapeWebsiteOptions) {\n  \"use step\"\n\n  const { url, selector, waitFor = 1000 } = options\n\n  if (!url) {\n    throw new FatalError(\"url is required\")\n  }\n\n  // Validate URL\n  try {\n    new URL(url)\n  } catch {\n    throw new FatalError(`Invalid URL: ${url}`)\n  }\n\n  // Dynamic import puppeteer\n  const puppeteer = (await import(\"puppeteer\")).default\n\n  const browser = await puppeteer.launch({\n    headless: true,\n    args: [\"--no-sandbox\", \"--disable-setuid-sandbox\"],\n  })\n\n  try {\n    const page = await browser.newPage()\n\n    await page.setUserAgent(\"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36\")\n\n    await page.goto(url, { waitUntil: \"networkidle2\", timeout: 30000 })\n\n    // Wait for selector or timeout\n    if (selector) {\n      await page.waitForSelector(selector, { timeout: waitFor })\n    } else if (waitFor > 0) {\n      await new Promise((resolve) => setTimeout(resolve, waitFor))\n    }\n\n    // Extract data\n    const data = await page.evaluate((sel) => {\n      if (sel) {\n        const elements = Array.from(document.querySelectorAll(sel))\n        return elements.map((el) => el.textContent?.trim())\n      }\n      return {\n        title: document.title,\n        body: document.body.innerText,\n      }\n    }, selector)\n\n    return {\n      url,\n      data,\n      timestamp: new Date().toISOString(),\n    }\n  } finally {\n    await browser.close()\n  }\n}\n",
+      "type": "registry:file",
+      "target": "steps/scrape-website.ts"
+    }
+  ]
+}

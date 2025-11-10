@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "parse-csv",
+  "type": "registry:item",
+  "description": "Parse CSV data into structured JSON",
+  "dependencies": [],
+  "files": [
+    {
+      "path": "steps/parse-csv.ts",
+      "content": "import { FatalError } from \"workflow\"\n\ninterface ParseCSVOptions {\n  csvData: string | Buffer\n  delimiter?: string\n  hasHeader?: boolean\n  skipEmptyLines?: boolean\n}\n\n/**\n * Parse CSV data into structured JSON\n *\n * @example\n * const data = await parseCSV({\n *   csvData: csvString,\n *   hasHeader: true,\n *   delimiter: ','\n * });\n */\nexport async function parseCSV(options: ParseCSVOptions) {\n  \"use step\"\n\n  const { csvData, delimiter = \",\", hasHeader = true, skipEmptyLines = true } = options\n\n  if (!csvData) {\n    throw new FatalError(\"csvData is required\")\n  }\n\n  const content = typeof csvData === \"string\" ? csvData : csvData.toString(\"utf-8\")\n\n  // Simple CSV parser (for production, consider using a library like papaparse)\n  const lines = content.split(\"\\n\").filter((line) => {\n    return !skipEmptyLines || line.trim().length > 0\n  })\n\n  if (lines.length === 0) {\n    throw new FatalError(\"CSV data is empty\")\n  }\n\n  const parseRow = (row: string): string[] => {\n    const values: string[] = []\n    let current = \"\"\n    let inQuotes = false\n\n    for (let i = 0; i < row.length; i++) {\n      const char = row[i]\n      const nextChar = row[i + 1]\n\n      if (char === '\"') {\n        if (inQuotes && nextChar === '\"') {\n          current += '\"'\n          i++ // Skip next quote\n        } else {\n          inQuotes = !inQuotes\n        }\n      } else if (char === delimiter && !inQuotes) {\n        values.push(current.trim())\n        current = \"\"\n      } else {\n        current += char\n      }\n    }\n    values.push(current.trim())\n\n    return values\n  }\n\n  let headers: string[] = []\n  let startIndex = 0\n\n  if (hasHeader) {\n    headers = parseRow(lines[0])\n    startIndex = 1\n  }\n\n  const rows = lines.slice(startIndex).map((line) => {\n    const values = parseRow(line)\n\n    if (hasHeader) {\n      const obj: Record<string, string> = {}\n      headers.forEach((header, index) => {\n        obj[header] = values[index] || \"\"\n      })\n      return obj\n    }\n\n    return values\n  })\n\n  return {\n    headers: hasHeader ? headers : undefined,\n    rows,\n    rowCount: rows.length,\n  }\n}\n",
+      "type": "registry:file",
+      "target": "steps/parse-csv.ts"
+    }
+  ]
+}

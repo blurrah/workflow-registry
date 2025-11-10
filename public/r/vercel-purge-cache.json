@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "vercel-purge-cache",
+  "type": "registry:item",
+  "description": "Purge the cache for a Vercel deployment",
+  "dependencies": [],
+  "files": [
+    {
+      "path": "steps/vercel-purge-cache.ts",
+      "content": "import { FatalError } from \"workflow\"\n\n/**\n * Purge the cache for a Vercel deployment\n *\n * @param deploymentId - The deployment ID or URL\n * @returns Cache purge confirmation\n */\nexport async function purgeVercelCache(deploymentId: string) {\n  \"use step\"\n\n  const token = process.env.VERCEL_TOKEN\n  if (!token) {\n    throw new FatalError(\"VERCEL_TOKEN environment variable is required\")\n  }\n\n  if (!deploymentId) {\n    throw new FatalError(\"deploymentId is required\")\n  }\n\n  const teamId = process.env.VERCEL_TEAM_ID\n  const url = teamId\n    ? `https://api.vercel.com/v1/deployments/${deploymentId}/cache?teamId=${teamId}`\n    : `https://api.vercel.com/v1/deployments/${deploymentId}/cache`\n\n  const response = await fetch(url, {\n    method: \"DELETE\",\n    headers: {\n      Authorization: `Bearer ${token}`,\n    },\n  })\n\n  if (!response.ok) {\n    const error = await response.text()\n    throw new Error(`Failed to purge cache: ${error}`)\n  }\n\n  return {\n    deploymentId,\n    cachePurged: true,\n  }\n}\n",
+      "type": "registry:file",
+      "target": "steps/vercel-purge-cache.ts"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "vercel-create-deployment",
+  "type": "registry:item",
+  "description": "Create a new deployment on Vercel with git integration",
+  "dependencies": [],
+  "files": [
+    {
+      "path": "steps/vercel-create-deployment.ts",
+      "content": "import { FatalError } from \"workflow\"\n\n/**\n * Create a new deployment on Vercel\n *\n * @param projectId - The Vercel project ID\n * @param gitRef - Git branch, commit SHA, or tag to deploy (optional, defaults to main)\n * @param target - Deployment target: 'production' or 'preview'\n * @returns Deployment object with URL and ID\n */\nexport async function createVercelDeployment(\n  projectId: string,\n  gitRef = \"main\",\n  target: \"production\" | \"preview\" = \"preview\",\n) {\n  \"use step\"\n\n  const token = process.env.VERCEL_TOKEN\n  if (!token) {\n    throw new FatalError(\"VERCEL_TOKEN environment variable is required\")\n  }\n\n  const teamId = process.env.VERCEL_TEAM_ID\n  const url = teamId\n    ? `https://api.vercel.com/v13/deployments?teamId=${teamId}`\n    : \"https://api.vercel.com/v13/deployments\"\n\n  const response = await fetch(url, {\n    method: \"POST\",\n    headers: {\n      Authorization: `Bearer ${token}`,\n      \"Content-Type\": \"application/json\",\n    },\n    body: JSON.stringify({\n      name: projectId,\n      gitSource: {\n        ref: gitRef,\n        type: \"github\",\n      },\n      target,\n    }),\n  })\n\n  if (!response.ok) {\n    const error = await response.text()\n    throw new Error(`Failed to create deployment: ${error}`)\n  }\n\n  const deployment = await response.json()\n  return {\n    id: deployment.id,\n    url: deployment.url,\n    readyState: deployment.readyState,\n    target: deployment.target,\n  }\n}\n",
+      "type": "registry:file",
+      "target": "steps/vercel-create-deployment.ts"
+    }
+  ]
+}

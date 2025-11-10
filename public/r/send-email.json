@@ -1,0 +1,17 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "send-email",
+  "type": "registry:item",
+  "description": "Send transactional emails via Resend with automatic retries",
+  "dependencies": [
+    "resend"
+  ],
+  "files": [
+    {
+      "path": "steps/send-email.ts",
+      "content": "import { Resend } from \"resend\"\nimport { FatalError } from \"workflow\"\n\ninterface SendEmailParams {\n  to: string | string[]\n  subject: string\n  html: string\n  from?: string\n  replyTo?: string\n}\n\n/**\n * Send a transactional email using Resend with automatic retries.\n *\n * This step is perfect for sending confirmation emails, notifications,\n * and other automated communications from your workflows.\n *\n * @param to - Email recipient(s)\n * @param subject - Email subject line\n * @param html - HTML email body\n * @param from - Sender email (defaults to RESEND_FROM_EMAIL env var)\n * @param replyTo - Optional reply-to address\n * @returns Email ID from Resend\n */\nexport async function sendEmail({ to, subject, html, from, replyTo }: SendEmailParams) {\n  \"use step\"\n\n  const resendApiKey = process.env.RESEND_API_KEY\n  const defaultFrom = process.env.RESEND_FROM_EMAIL || \"noreply@example.com\"\n\n  if (!resendApiKey) {\n    throw new FatalError(\"RESEND_API_KEY environment variable is not configured\")\n  }\n\n  const resend = new Resend(resendApiKey)\n\n  try {\n    const { data, error } = await resend.emails.send({\n      from: from || defaultFrom,\n      to: Array.isArray(to) ? to : [to],\n      subject,\n      html,\n      reply_to: replyTo,\n    })\n\n    if (error) {\n      throw new FatalError(`Email send failed: ${error.message}`)\n    }\n\n    return {\n      id: data?.id,\n      success: true,\n    }\n  } catch (error: any) {\n    // Resend errors are typically not retryable\n    throw new FatalError(error.message || \"Failed to send email\")\n  }\n}\n",
+      "type": "registry:file",
+      "target": "steps/send-email.ts"
+    }
+  ]
+}

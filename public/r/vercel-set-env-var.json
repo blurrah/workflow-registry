@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "vercel-set-env-var",
+  "type": "registry:item",
+  "description": "Set environment variables for a Vercel project",
+  "dependencies": [],
+  "files": [
+    {
+      "path": "steps/vercel-set-env-var.ts",
+      "content": "import { FatalError } from \"workflow\"\n\n/**\n * Set an environment variable for a Vercel project\n *\n * @param projectId - The Vercel project ID or name\n * @param key - Environment variable key\n * @param value - Environment variable value\n * @param targets - Target environments (production, preview, development)\n * @param type - Variable type: 'encrypted', 'plain', or 'secret'\n * @returns Created environment variable\n */\nexport async function setVercelEnvVar(\n  projectId: string,\n  key: string,\n  value: string,\n  targets: (\"production\" | \"preview\" | \"development\")[] = [\"production\", \"preview\", \"development\"],\n  type: \"encrypted\" | \"plain\" | \"secret\" = \"encrypted\",\n) {\n  \"use step\"\n\n  const token = process.env.VERCEL_TOKEN\n  if (!token) {\n    throw new FatalError(\"VERCEL_TOKEN environment variable is required\")\n  }\n\n  if (!key || !value) {\n    throw new FatalError(\"Both key and value are required\")\n  }\n\n  const teamId = process.env.VERCEL_TEAM_ID\n  const url = teamId\n    ? `https://api.vercel.com/v10/projects/${projectId}/env?teamId=${teamId}&upsert=true`\n    : `https://api.vercel.com/v10/projects/${projectId}/env?upsert=true`\n\n  const response = await fetch(url, {\n    method: \"POST\",\n    headers: {\n      Authorization: `Bearer ${token}`,\n      \"Content-Type\": \"application/json\",\n    },\n    body: JSON.stringify({\n      key,\n      value,\n      target: targets,\n      type,\n    }),\n  })\n\n  if (!response.ok) {\n    const error = await response.text()\n    throw new Error(`Failed to set environment variable: ${error}`)\n  }\n\n  return await response.json()\n}\n",
+      "type": "registry:file",
+      "target": "steps/vercel-set-env-var.ts"
+    }
+  ]
+}

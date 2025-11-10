@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "vercel-get-project",
+  "type": "registry:item",
+  "description": "Get details about a Vercel project",
+  "dependencies": [],
+  "files": [
+    {
+      "path": "steps/vercel-get-project.ts",
+      "content": "import { FatalError } from \"workflow\"\n\n/**\n * Get details about a Vercel project\n *\n * @param projectId - The project ID or name\n * @returns Project details including settings, environment variables count, and metadata\n */\nexport async function getVercelProject(projectId: string) {\n  \"use step\"\n\n  const token = process.env.VERCEL_TOKEN\n  if (!token) {\n    throw new FatalError(\"VERCEL_TOKEN environment variable is required\")\n  }\n\n  if (!projectId) {\n    throw new FatalError(\"projectId is required\")\n  }\n\n  const teamId = process.env.VERCEL_TEAM_ID\n  const url = teamId\n    ? `https://api.vercel.com/v9/projects/${projectId}?teamId=${teamId}`\n    : `https://api.vercel.com/v9/projects/${projectId}`\n\n  const response = await fetch(url, {\n    method: \"GET\",\n    headers: {\n      Authorization: `Bearer ${token}`,\n    },\n  })\n\n  if (!response.ok) {\n    const error = await response.text()\n    throw new Error(`Failed to get project: ${error}`)\n  }\n\n  const project = await response.json()\n  return {\n    id: project.id,\n    name: project.name,\n    framework: project.framework,\n    devCommand: project.devCommand,\n    buildCommand: project.buildCommand,\n    outputDirectory: project.outputDirectory,\n    updatedAt: project.updatedAt,\n  }\n}\n",
+      "type": "registry:file",
+      "target": "steps/vercel-get-project.ts"
+    }
+  ]
+}

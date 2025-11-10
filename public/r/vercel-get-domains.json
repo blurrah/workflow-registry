@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "vercel-get-domains",
+  "type": "registry:item",
+  "description": "Get all domains configured for a Vercel project",
+  "dependencies": [],
+  "files": [
+    {
+      "path": "steps/vercel-get-domains.ts",
+      "content": "import { FatalError } from \"workflow\"\n\n/**\n * Get all domains for a Vercel project\n *\n * @param projectId - The project ID or name\n * @returns List of domains with their configuration\n */\nexport async function getVercelDomains(projectId: string) {\n  \"use step\"\n\n  const token = process.env.VERCEL_TOKEN\n  if (!token) {\n    throw new FatalError(\"VERCEL_TOKEN environment variable is required\")\n  }\n\n  if (!projectId) {\n    throw new FatalError(\"projectId is required\")\n  }\n\n  const teamId = process.env.VERCEL_TEAM_ID\n  const url = teamId\n    ? `https://api.vercel.com/v9/projects/${projectId}/domains?teamId=${teamId}`\n    : `https://api.vercel.com/v9/projects/${projectId}/domains`\n\n  const response = await fetch(url, {\n    method: \"GET\",\n    headers: {\n      Authorization: `Bearer ${token}`,\n    },\n  })\n\n  if (!response.ok) {\n    const error = await response.text()\n    throw new Error(`Failed to get domains: ${error}`)\n  }\n\n  const data = await response.json()\n  return data.domains.map((domain: any) => ({\n    name: domain.name,\n    verified: domain.verified,\n    primary: domain.primary,\n    redirect: domain.redirect,\n    redirectStatusCode: domain.redirectStatusCode,\n  }))\n}\n",
+      "type": "registry:file",
+      "target": "steps/vercel-get-domains.ts"
+    }
+  ]
+}

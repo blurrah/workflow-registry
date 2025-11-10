@@ -1,0 +1,532 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "workflow-registry",
+  "homepage": "https://workflow-registry.vercel.app",
+  "items": [
+    {
+      "name": "send-slack-message",
+      "type": "registry:item",
+      "description": "Send messages to Slack channels with retry logic and error handling",
+      "dependencies": [
+        "@slack/web-api"
+      ],
+      "files": [
+        {
+          "path": "steps/send-slack-message.ts",
+          "type": "registry:file",
+          "target": "steps/send-slack-message.ts"
+        }
+      ]
+    },
+    {
+      "name": "send-email",
+      "type": "registry:item",
+      "description": "Send transactional emails via Resend with automatic retries",
+      "dependencies": [
+        "resend"
+      ],
+      "files": [
+        {
+          "path": "steps/send-email.ts",
+          "type": "registry:file",
+          "target": "steps/send-email.ts"
+        }
+      ]
+    },
+    {
+      "name": "generate-ai-content",
+      "type": "registry:item",
+      "description": "Generate content using AI models with the Vercel AI SDK",
+      "dependencies": [
+        "ai"
+      ],
+      "files": [
+        {
+          "path": "steps/generate-ai-content.ts",
+          "type": "registry:file",
+          "target": "steps/generate-ai-content.ts"
+        }
+      ]
+    },
+    {
+      "name": "fetch-api-data",
+      "type": "registry:item",
+      "description": "Fetch data from external APIs with automatic retries",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/fetch-api-data.ts",
+          "type": "registry:file",
+          "target": "steps/fetch-api-data.ts"
+        }
+      ]
+    },
+    {
+      "name": "validate-data",
+      "type": "registry:item",
+      "description": "Validate data using Zod schemas with clear error messages",
+      "dependencies": [
+        "zod"
+      ],
+      "files": [
+        {
+          "path": "steps/validate-data.ts",
+          "type": "registry:file",
+          "target": "steps/validate-data.ts"
+        }
+      ]
+    },
+    {
+      "name": "upload-to-storage",
+      "type": "registry:item",
+      "description": "Upload files to Vercel Blob storage with progress tracking",
+      "dependencies": [
+        "@vercel/blob"
+      ],
+      "files": [
+        {
+          "path": "steps/upload-to-storage.ts",
+          "type": "registry:file",
+          "target": "steps/upload-to-storage.ts"
+        }
+      ]
+    },
+    {
+      "name": "send-discord-webhook",
+      "type": "registry:item",
+      "description": "Send messages to Discord channels via webhooks",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/send-discord-webhook.ts",
+          "type": "registry:file",
+          "target": "steps/send-discord-webhook.ts"
+        }
+      ]
+    },
+    {
+      "name": "create-pdf",
+      "type": "registry:item",
+      "description": "Generate PDF documents from HTML templates",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/create-pdf.ts",
+          "type": "registry:file",
+          "target": "steps/create-pdf.ts"
+        }
+      ]
+    },
+    {
+      "name": "send-sms",
+      "type": "registry:item",
+      "description": "Send SMS messages using Twilio with validation",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/send-sms.ts",
+          "type": "registry:file",
+          "target": "steps/send-sms.ts"
+        }
+      ]
+    },
+    {
+      "name": "transform-image",
+      "type": "registry:item",
+      "description": "Transform and optimize images using sharp",
+      "dependencies": [
+        "sharp"
+      ],
+      "files": [
+        {
+          "path": "steps/transform-image.ts",
+          "type": "registry:file",
+          "target": "steps/transform-image.ts"
+        }
+      ]
+    },
+    {
+      "name": "scrape-website",
+      "type": "registry:item",
+      "description": "Scrape website content using Puppeteer",
+      "dependencies": [
+        "puppeteer"
+      ],
+      "files": [
+        {
+          "path": "steps/scrape-website.ts",
+          "type": "registry:file",
+          "target": "steps/scrape-website.ts"
+        }
+      ]
+    },
+    {
+      "name": "send-webhook",
+      "type": "registry:item",
+      "description": "Send webhook notifications with signature verification",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/send-webhook.ts",
+          "type": "registry:file",
+          "target": "steps/send-webhook.ts"
+        }
+      ]
+    },
+    {
+      "name": "query-database",
+      "type": "registry:item",
+      "description": "Execute SQL queries against PostgreSQL database",
+      "dependencies": [
+        "@vercel/postgres"
+      ],
+      "files": [
+        {
+          "path": "steps/query-database.ts",
+          "type": "registry:file",
+          "target": "steps/query-database.ts"
+        }
+      ]
+    },
+    {
+      "name": "compress-file",
+      "type": "registry:item",
+      "description": "Compress data using gzip, brotli, or deflate",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/compress-file.ts",
+          "type": "registry:file",
+          "target": "steps/compress-file.ts"
+        }
+      ]
+    },
+    {
+      "name": "parse-csv",
+      "type": "registry:item",
+      "description": "Parse CSV data into structured JSON",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/parse-csv.ts",
+          "type": "registry:file",
+          "target": "steps/parse-csv.ts"
+        }
+      ]
+    },
+    {
+      "name": "generate-qr-code",
+      "type": "registry:item",
+      "description": "Generate QR codes for URLs, text, or structured data",
+      "dependencies": [
+        "qrcode"
+      ],
+      "files": [
+        {
+          "path": "steps/generate-qr-code.ts",
+          "type": "registry:file",
+          "target": "steps/generate-qr-code.ts"
+        }
+      ]
+    },
+    {
+      "name": "geocode-address",
+      "type": "registry:item",
+      "description": "Convert addresses to geographic coordinates",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/geocode-address.ts",
+          "type": "registry:file",
+          "target": "steps/geocode-address.ts"
+        }
+      ]
+    },
+    {
+      "name": "vercel-create-deployment",
+      "type": "registry:item",
+      "description": "Create a new deployment on Vercel with git integration",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/vercel-create-deployment.ts",
+          "type": "registry:file",
+          "target": "steps/vercel-create-deployment.ts"
+        }
+      ]
+    },
+    {
+      "name": "vercel-set-env-var",
+      "type": "registry:item",
+      "description": "Set environment variables for a Vercel project",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/vercel-set-env-var.ts",
+          "type": "registry:file",
+          "target": "steps/vercel-set-env-var.ts"
+        }
+      ]
+    },
+    {
+      "name": "vercel-get-deployment",
+      "type": "registry:item",
+      "description": "Get details about a Vercel deployment",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/vercel-get-deployment.ts",
+          "type": "registry:file",
+          "target": "steps/vercel-get-deployment.ts"
+        }
+      ]
+    },
+    {
+      "name": "vercel-cancel-deployment",
+      "type": "registry:item",
+      "description": "Cancel a running Vercel deployment",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/vercel-cancel-deployment.ts",
+          "type": "registry:file",
+          "target": "steps/vercel-cancel-deployment.ts"
+        }
+      ]
+    },
+    {
+      "name": "vercel-get-project",
+      "type": "registry:item",
+      "description": "Get details about a Vercel project",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/vercel-get-project.ts",
+          "type": "registry:file",
+          "target": "steps/vercel-get-project.ts"
+        }
+      ]
+    },
+    {
+      "name": "vercel-get-domains",
+      "type": "registry:item",
+      "description": "Get all domains configured for a Vercel project",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/vercel-get-domains.ts",
+          "type": "registry:file",
+          "target": "steps/vercel-get-domains.ts"
+        }
+      ]
+    },
+    {
+      "name": "vercel-purge-cache",
+      "type": "registry:item",
+      "description": "Purge the cache for a Vercel deployment",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/vercel-purge-cache.ts",
+          "type": "registry:file",
+          "target": "steps/vercel-purge-cache.ts"
+        }
+      ]
+    },
+    {
+      "name": "vercel-edge-config-get",
+      "type": "registry:item",
+      "description": "Get a value from Vercel Edge Config",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/vercel-edge-config-get.ts",
+          "type": "registry:file",
+          "target": "steps/vercel-edge-config-get.ts"
+        }
+      ]
+    },
+    {
+      "name": "vercel-edge-config-set",
+      "type": "registry:item",
+      "description": "Set a value in Vercel Edge Config",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/vercel-edge-config-set.ts",
+          "type": "registry:file",
+          "target": "steps/vercel-edge-config-set.ts"
+        }
+      ]
+    },
+    {
+      "name": "vercel-list-deployments",
+      "type": "registry:item",
+      "description": "List deployments for a Vercel project with filtering",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/vercel-list-deployments.ts",
+          "type": "registry:file",
+          "target": "steps/vercel-list-deployments.ts"
+        }
+      ]
+    },
+    {
+      "name": "google-sheets-append-row",
+      "type": "registry:item",
+      "description": "Append a row to a Google Sheet",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/google-sheets-append-row.ts",
+          "type": "registry:file",
+          "target": "steps/google-sheets-append-row.ts"
+        }
+      ]
+    },
+    {
+      "name": "google-sheets-read-rows",
+      "type": "registry:item",
+      "description": "Read rows from a Google Sheet",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/google-sheets-read-rows.ts",
+          "type": "registry:file",
+          "target": "steps/google-sheets-read-rows.ts"
+        }
+      ]
+    },
+    {
+      "name": "airtable-create-record",
+      "type": "registry:item",
+      "description": "Create a record in Airtable",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/airtable-create-record.ts",
+          "type": "registry:file",
+          "target": "steps/airtable-create-record.ts"
+        }
+      ]
+    },
+    {
+      "name": "airtable-query-records",
+      "type": "registry:item",
+      "description": "Query records from Airtable with filtering",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/airtable-query-records.ts",
+          "type": "registry:file",
+          "target": "steps/airtable-query-records.ts"
+        }
+      ]
+    },
+    {
+      "name": "notion-create-page",
+      "type": "registry:item",
+      "description": "Create a page in Notion",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/notion-create-page.ts",
+          "type": "registry:file",
+          "target": "steps/notion-create-page.ts"
+        }
+      ]
+    },
+    {
+      "name": "notion-create-database-entry",
+      "type": "registry:item",
+      "description": "Create an entry in a Notion database",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/notion-create-database-entry.ts",
+          "type": "registry:file",
+          "target": "steps/notion-create-database-entry.ts"
+        }
+      ]
+    },
+    {
+      "name": "github-create-issue",
+      "type": "registry:item",
+      "description": "Create an issue on GitHub",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/github-create-issue.ts",
+          "type": "registry:file",
+          "target": "steps/github-create-issue.ts"
+        }
+      ]
+    },
+    {
+      "name": "github-create-pr",
+      "type": "registry:item",
+      "description": "Create a pull request on GitHub",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/github-create-pr.ts",
+          "type": "registry:file",
+          "target": "steps/github-create-pr.ts"
+        }
+      ]
+    },
+    {
+      "name": "telegram-send-message",
+      "type": "registry:item",
+      "description": "Send a message via Telegram Bot",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/telegram-send-message.ts",
+          "type": "registry:file",
+          "target": "steps/telegram-send-message.ts"
+        }
+      ]
+    },
+    {
+      "name": "google-drive-upload-file",
+      "type": "registry:item",
+      "description": "Upload a file to Google Drive",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/google-drive-upload-file.ts",
+          "type": "registry:file",
+          "target": "steps/google-drive-upload-file.ts"
+        }
+      ]
+    },
+    {
+      "name": "shopify-create-order",
+      "type": "registry:item",
+      "description": "Create an order in Shopify",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/shopify-create-order.ts",
+          "type": "registry:file",
+          "target": "steps/shopify-create-order.ts"
+        }
+      ]
+    },
+    {
+      "name": "shopify-get-products",
+      "type": "registry:item",
+      "description": "Get products from Shopify store",
+      "dependencies": [],
+      "files": [
+        {
+          "path": "steps/shopify-get-products.ts",
+          "type": "registry:file",
+          "target": "steps/shopify-get-products.ts"
+        }
+      ]
+    }
+  ]
+}

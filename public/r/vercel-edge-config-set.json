@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "vercel-edge-config-set",
+  "type": "registry:item",
+  "description": "Set a value in Vercel Edge Config",
+  "dependencies": [],
+  "files": [
+    {
+      "path": "steps/vercel-edge-config-set.ts",
+      "content": "import { FatalError } from \"workflow\"\n\n/**\n * Set a value in Vercel Edge Config\n *\n * @param key - The key to set\n * @param value - The value to store (must be JSON serializable)\n * @param edgeConfigId - Optional Edge Config ID (uses EDGE_CONFIG_ID env var if not provided)\n * @returns Confirmation of the set operation\n */\nexport async function setEdgeConfigValue(key: string, value: any, edgeConfigId?: string) {\n  \"use step\"\n\n  const token = process.env.VERCEL_TOKEN\n  const configId = edgeConfigId || process.env.EDGE_CONFIG_ID\n\n  if (!token) {\n    throw new FatalError(\"VERCEL_TOKEN environment variable is required\")\n  }\n\n  if (!configId) {\n    throw new FatalError(\"EDGE_CONFIG_ID environment variable or edgeConfigId parameter is required\")\n  }\n\n  if (!key) {\n    throw new FatalError(\"key is required\")\n  }\n\n  const teamId = process.env.VERCEL_TEAM_ID\n  const url = teamId\n    ? `https://api.vercel.com/v1/edge-config/${configId}/items?teamId=${teamId}`\n    : `https://api.vercel.com/v1/edge-config/${configId}/items`\n\n  const response = await fetch(url, {\n    method: \"PATCH\",\n    headers: {\n      Authorization: `Bearer ${token}`,\n      \"Content-Type\": \"application/json\",\n    },\n    body: JSON.stringify({\n      items: [\n        {\n          operation: \"upsert\",\n          key,\n          value,\n        },\n      ],\n    }),\n  })\n\n  if (!response.ok) {\n    const error = await response.text()\n    throw new Error(`Failed to set Edge Config value: ${error}`)\n  }\n\n  return {\n    key,\n    success: true,\n  }\n}\n",
+      "type": "registry:file",
+      "target": "steps/vercel-edge-config-set.ts"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "shopify-create-order",
+  "type": "registry:item",
+  "description": "Create an order in Shopify",
+  "dependencies": [],
+  "files": [
+    {
+      "path": "steps/shopify-create-order.ts",
+      "content": "/**\n * Create an order in Shopify\n *\n * @param shopDomain - Your Shopify shop domain (e.g., 'mystore.myshopify.com')\n * @param lineItems - Array of products with variant ID and quantity\n * @param customer - Optional customer information\n * @returns The created order with ID and order number\n *\n * @env SHOPIFY_ACCESS_TOKEN - Shopify Admin API access token\n */\n\nimport { FatalError } from \"workflow\"\n\ninterface LineItem {\n  variantId: string\n  quantity: number\n}\n\ninterface Customer {\n  email?: string\n  firstName?: string\n  lastName?: string\n}\n\ninterface CreateOrderOptions {\n  shopDomain: string\n  lineItems: LineItem[]\n  customer?: Customer\n}\n\nexport async function shopifyCreateOrder({ shopDomain, lineItems, customer }: CreateOrderOptions) {\n  \"use step\"\n\n  const accessToken = process.env.SHOPIFY_ACCESS_TOKEN\n  if (!accessToken) {\n    throw new FatalError(\"SHOPIFY_ACCESS_TOKEN environment variable is required\")\n  }\n\n  if (!shopDomain || !lineItems?.length) {\n    throw new FatalError(\"shopDomain and lineItems are required\")\n  }\n\n  const url = `https://${shopDomain}/admin/api/2024-01/orders.json`\n\n  const order = {\n    line_items: lineItems.map((item) => ({\n      variant_id: item.variantId,\n      quantity: item.quantity,\n    })),\n    ...(customer && { customer }),\n  }\n\n  const response = await fetch(url, {\n    method: \"POST\",\n    headers: {\n      \"X-Shopify-Access-Token\": accessToken,\n      \"Content-Type\": \"application/json\",\n    },\n    body: JSON.stringify({ order }),\n  })\n\n  if (!response.ok) {\n    const error = await response.text()\n    throw new Error(`Failed to create Shopify order: ${error}`)\n  }\n\n  const data = await response.json()\n  return {\n    id: data.order.id,\n    orderNumber: data.order.order_number,\n    totalPrice: data.order.total_price,\n    createdAt: data.order.created_at,\n  }\n}\n",
+      "type": "registry:file",
+      "target": "steps/shopify-create-order.ts"
+    }
+  ]
+}

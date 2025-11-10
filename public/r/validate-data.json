@@ -1,0 +1,17 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "validate-data",
+  "type": "registry:item",
+  "description": "Validate data using Zod schemas with clear error messages",
+  "dependencies": [
+    "zod"
+  ],
+  "files": [
+    {
+      "path": "steps/validate-data.ts",
+      "content": "import { z, type ZodSchema } from \"zod\"\nimport { FatalError } from \"workflow\"\n\ninterface ValidateDataParams {\n  data: unknown\n  schema: ZodSchema\n}\n\n/**\n * Validate data against a Zod schema with clear error messages.\n *\n * This step is useful for ensuring data quality at various stages\n * of your workflow. It throws FatalError on validation failures since\n * invalid data typically indicates a configuration or logic error.\n *\n * @param data - The data to validate\n * @param schema - Zod schema to validate against\n * @returns Validated and typed data\n */\nexport async function validateData({ data, schema }: ValidateDataParams) {\n  \"use step\"\n\n  try {\n    const validatedData = schema.parse(data)\n\n    return {\n      valid: true,\n      data: validatedData,\n    }\n  } catch (error: any) {\n    if (error instanceof z.ZodError) {\n      const errorMessages = error.errors.map((err) => `${err.path.join(\".\")}: ${err.message}`).join(\", \")\n\n      throw new FatalError(`Validation failed: ${errorMessages}`)\n    }\n\n    throw new FatalError(\"Unknown validation error\")\n  }\n}\n",
+      "type": "registry:file",
+      "target": "steps/validate-data.ts"
+    }
+  ]
+}

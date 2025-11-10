@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "compress-file",
+  "type": "registry:item",
+  "description": "Compress data using gzip, brotli, or deflate",
+  "dependencies": [],
+  "files": [
+    {
+      "path": "steps/compress-file.ts",
+      "content": "import { FatalError } from \"workflow\"\n\ninterface CompressFileOptions {\n  input: Buffer | string\n  format?: \"gzip\" | \"brotli\" | \"deflate\"\n  level?: number\n}\n\n/**\n * Compress data using various compression algorithms\n *\n * @example\n * const compressed = await compressFile({\n *   input: largeTextData,\n *   format: 'gzip',\n *   level: 9\n * });\n */\nexport async function compressFile(options: CompressFileOptions) {\n  \"use step\"\n\n  const { input, format = \"gzip\", level = 6 } = options\n\n  if (!input) {\n    throw new FatalError(\"input is required\")\n  }\n\n  const { promisify } = await import(\"util\")\n  const zlib = await import(\"zlib\")\n\n  const buffer = typeof input === \"string\" ? Buffer.from(input) : input\n  const originalSize = buffer.length\n\n  let compressed: Buffer\n\n  try {\n    switch (format) {\n      case \"gzip\":\n        const gzip = promisify(zlib.gzip)\n        compressed = await gzip(buffer, { level })\n        break\n      case \"brotli\":\n        const brotli = promisify(zlib.brotliCompress)\n        compressed = await brotli(buffer, {\n          params: {\n            [zlib.constants.BROTLI_PARAM_QUALITY]: level,\n          },\n        })\n        break\n      case \"deflate\":\n        const deflate = promisify(zlib.deflate)\n        compressed = await deflate(buffer, { level })\n        break\n      default:\n        throw new FatalError(`Unsupported compression format: ${format}`)\n    }\n  } catch (error) {\n    throw new FatalError(`Compression failed: ${error instanceof Error ? error.message : \"Unknown error\"}`)\n  }\n\n  const compressedSize = compressed.length\n  const compressionRatio = ((1 - compressedSize / originalSize) * 100).toFixed(2)\n\n  return {\n    compressed,\n    originalSize,\n    compressedSize,\n    compressionRatio: `${compressionRatio}%`,\n    format,\n  }\n}\n",
+      "type": "registry:file",
+      "target": "steps/compress-file.ts"
+    }
+  ]
+}

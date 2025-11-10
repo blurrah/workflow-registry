@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "send-sms",
+  "type": "registry:item",
+  "description": "Send SMS messages using Twilio with validation",
+  "dependencies": [],
+  "files": [
+    {
+      "path": "steps/send-sms.ts",
+      "content": "import { FatalError } from \"workflow\"\n\ninterface SendSMSOptions {\n  to: string\n  message: string\n  from?: string\n}\n\n/**\n * Send SMS messages using Twilio\n *\n * @example\n * const result = await sendSMS({\n *   to: '+1234567890',\n *   message: 'Your verification code is 123456',\n *   from: '+0987654321'\n * });\n */\nexport async function sendSMS(options: SendSMSOptions) {\n  \"use step\"\n\n  const accountSid = process.env.TWILIO_ACCOUNT_SID\n  const authToken = process.env.TWILIO_AUTH_TOKEN\n  const defaultFrom = process.env.TWILIO_PHONE_NUMBER\n\n  if (!accountSid || !authToken) {\n    throw new FatalError(\"TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN are required\")\n  }\n\n  const { to, message, from = defaultFrom } = options\n\n  if (!from) {\n    throw new FatalError(\"from phone number is required (either as parameter or TWILIO_PHONE_NUMBER env var)\")\n  }\n\n  // Validate phone numbers\n  const phoneRegex = /^\\+?[1-9]\\d{1,14}$/\n  if (!phoneRegex.test(to)) {\n    throw new FatalError(`Invalid recipient phone number: ${to}`)\n  }\n\n  const response = await fetch(`https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`, {\n    method: \"POST\",\n    headers: {\n      Authorization: \"Basic \" + Buffer.from(`${accountSid}:${authToken}`).toString(\"base64\"),\n      \"Content-Type\": \"application/x-www-form-urlencoded\",\n    },\n    body: new URLSearchParams({\n      To: to,\n      From: from,\n      Body: message,\n    }),\n  })\n\n  if (!response.ok) {\n    const error = await response.json()\n    throw new Error(`Failed to send SMS: ${error.message}`)\n  }\n\n  const result = await response.json()\n\n  return {\n    sid: result.sid,\n    status: result.status,\n    to: result.to,\n    from: result.from,\n  }\n}\n",
+      "type": "registry:file",
+      "target": "steps/send-sms.ts"
+    }
+  ]
+}

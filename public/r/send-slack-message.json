@@ -1,0 +1,17 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "send-slack-message",
+  "type": "registry:item",
+  "description": "Send messages to Slack channels with retry logic and error handling",
+  "dependencies": [
+    "@slack/web-api"
+  ],
+  "files": [
+    {
+      "path": "steps/send-slack-message.ts",
+      "content": "import { WebClient } from \"@slack/web-api\"\nimport { FatalError } from \"workflow\"\n\ninterface SendSlackMessageParams {\n  channel: string\n  text: string\n  blocks?: any[]\n}\n\n/**\n * Send a message to a Slack channel with automatic retry logic.\n *\n * This step handles transient failures automatically but throws FatalError\n * for configuration issues like invalid tokens.\n *\n * @param channel - The Slack channel ID or name (e.g., '#general')\n * @param text - The message text to send\n * @param blocks - Optional Slack Block Kit blocks for rich formatting\n * @returns Message metadata including timestamp and channel\n */\nexport async function sendSlackMessage({ channel, text, blocks }: SendSlackMessageParams) {\n  \"use step\"\n\n  const slackToken = process.env.SLACK_BOT_TOKEN\n\n  if (!slackToken) {\n    throw new FatalError(\"SLACK_BOT_TOKEN environment variable is not configured\")\n  }\n\n  const client = new WebClient(slackToken)\n\n  try {\n    const result = await client.chat.postMessage({\n      channel,\n      text,\n      blocks,\n    })\n\n    return {\n      ok: true,\n      messageTs: result.ts,\n      channel: result.channel,\n    }\n  } catch (error: any) {\n    // Check if it's a fatal error (like invalid token or channel)\n    if (error.data?.error === \"invalid_auth\" || error.data?.error === \"not_in_channel\") {\n      throw new FatalError(`Slack error: ${error.data.error}`)\n    }\n\n    // Let transient errors (rate limits, network issues) retry automatically\n    throw error\n  }\n}\n",
+      "type": "registry:file",
+      "target": "steps/send-slack-message.ts"
+    }
+  ]
+}

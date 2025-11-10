@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "vercel-list-deployments",
+  "type": "registry:item",
+  "description": "List deployments for a Vercel project with filtering",
+  "dependencies": [],
+  "files": [
+    {
+      "path": "steps/vercel-list-deployments.ts",
+      "content": "import { FatalError } from \"workflow\"\n\n/**\n * List deployments for a Vercel project\n *\n * @param projectId - The project ID or name\n * @param limit - Maximum number of deployments to return (default: 20)\n * @param state - Filter by deployment state: 'BUILDING', 'ERROR', 'INITIALIZING', 'QUEUED', 'READY', 'CANCELED'\n * @returns List of deployments with their details\n */\nexport async function listVercelDeployments(\n  projectId: string,\n  limit = 20,\n  state?: \"BUILDING\" | \"ERROR\" | \"INITIALIZING\" | \"QUEUED\" | \"READY\" | \"CANCELED\",\n) {\n  \"use step\"\n\n  const token = process.env.VERCEL_TOKEN\n  if (!token) {\n    throw new FatalError(\"VERCEL_TOKEN environment variable is required\")\n  }\n\n  if (!projectId) {\n    throw new FatalError(\"projectId is required\")\n  }\n\n  const teamId = process.env.VERCEL_TEAM_ID\n  const params = new URLSearchParams({\n    projectId,\n    limit: limit.toString(),\n    ...(teamId && { teamId }),\n    ...(state && { state }),\n  })\n\n  const url = `https://api.vercel.com/v6/deployments?${params.toString()}`\n\n  const response = await fetch(url, {\n    method: \"GET\",\n    headers: {\n      Authorization: `Bearer ${token}`,\n    },\n  })\n\n  if (!response.ok) {\n    const error = await response.text()\n    throw new Error(`Failed to list deployments: ${error}`)\n  }\n\n  const data = await response.json()\n  return data.deployments.map((deployment: any) => ({\n    id: deployment.uid,\n    name: deployment.name,\n    url: deployment.url,\n    state: deployment.readyState,\n    target: deployment.target,\n    createdAt: deployment.createdAt,\n  }))\n}\n",
+      "type": "registry:file",
+      "target": "steps/vercel-list-deployments.ts"
+    }
+  ]
+}

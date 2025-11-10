@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "geocode-address",
+  "type": "registry:item",
+  "description": "Convert addresses to geographic coordinates",
+  "dependencies": [],
+  "files": [
+    {
+      "path": "steps/geocode-address.ts",
+      "content": "import { FatalError } from \"workflow\"\n\ninterface GeocodeAddressOptions {\n  address: string\n  provider?: \"google\" | \"opencage\"\n}\n\n/**\n * Convert addresses to geographic coordinates\n *\n * @example\n * const location = await geocodeAddress({\n *   address: '1600 Amphitheatre Parkway, Mountain View, CA',\n *   provider: 'google'\n * });\n */\nexport async function geocodeAddress(options: GeocodeAddressOptions) {\n  \"use step\"\n\n  const { address, provider = \"google\" } = options\n\n  if (!address) {\n    throw new FatalError(\"address is required\")\n  }\n\n  let apiKey: string | undefined\n  let apiUrl: string\n\n  if (provider === \"google\") {\n    apiKey = process.env.GOOGLE_MAPS_API_KEY\n    if (!apiKey) {\n      throw new FatalError(\"GOOGLE_MAPS_API_KEY environment variable is required\")\n    }\n    apiUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${apiKey}`\n  } else if (provider === \"opencage\") {\n    apiKey = process.env.OPENCAGE_API_KEY\n    if (!apiKey) {\n      throw new FatalError(\"OPENCAGE_API_KEY environment variable is required\")\n    }\n    apiUrl = `https://api.opencagedata.com/geocode/v1/json?q=${encodeURIComponent(address)}&key=${apiKey}`\n  } else {\n    throw new FatalError(`Unsupported geocoding provider: ${provider}`)\n  }\n\n  const response = await fetch(apiUrl)\n\n  if (!response.ok) {\n    throw new Error(`Geocoding request failed: ${response.statusText}`)\n  }\n\n  const data = await response.json()\n\n  if (provider === \"google\") {\n    if (data.status !== \"OK\" || !data.results || data.results.length === 0) {\n      throw new Error(`No results found for address: ${address}`)\n    }\n\n    const result = data.results[0]\n    return {\n      latitude: result.geometry.location.lat,\n      longitude: result.geometry.location.lng,\n      formattedAddress: result.formatted_address,\n      placeId: result.place_id,\n      provider,\n    }\n  } else {\n    if (!data.results || data.results.length === 0) {\n      throw new Error(`No results found for address: ${address}`)\n    }\n\n    const result = data.results[0]\n    return {\n      latitude: result.geometry.lat,\n      longitude: result.geometry.lng,\n      formattedAddress: result.formatted,\n      confidence: result.confidence,\n      provider,\n    }\n  }\n}\n",
+      "type": "registry:file",
+      "target": "steps/geocode-address.ts"
+    }
+  ]
+}

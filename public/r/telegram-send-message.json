@@ -1,0 +1,15 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "telegram-send-message",
+  "type": "registry:item",
+  "description": "Send a message via Telegram Bot",
+  "dependencies": [],
+  "files": [
+    {
+      "path": "steps/telegram-send-message.ts",
+      "content": "/**\n * Send a message via Telegram Bot\n *\n * @param chatId - The chat ID (user, group, or channel)\n * @param text - Message text (supports Markdown)\n * @param parseMode - Optional parse mode: 'Markdown' or 'HTML'\n * @returns The sent message details\n *\n * @env TELEGRAM_BOT_TOKEN - Telegram bot token from @BotFather\n */\n\nimport { FatalError } from \"workflow\"\n\ninterface SendMessageOptions {\n  chatId: string | number\n  text: string\n  parseMode?: \"Markdown\" | \"HTML\"\n}\n\nexport async function telegramSendMessage({ chatId, text, parseMode }: SendMessageOptions) {\n  \"use step\"\n\n  const botToken = process.env.TELEGRAM_BOT_TOKEN\n  if (!botToken) {\n    throw new FatalError(\"TELEGRAM_BOT_TOKEN environment variable is required\")\n  }\n\n  if (!chatId || !text) {\n    throw new FatalError(\"chatId and text are required\")\n  }\n\n  const url = `https://api.telegram.org/bot${botToken}/sendMessage`\n\n  const response = await fetch(url, {\n    method: \"POST\",\n    headers: {\n      \"Content-Type\": \"application/json\",\n    },\n    body: JSON.stringify({\n      chat_id: chatId,\n      text,\n      parse_mode: parseMode,\n    }),\n  })\n\n  if (!response.ok) {\n    const error = await response.text()\n    throw new Error(`Failed to send Telegram message: ${error}`)\n  }\n\n  const data = await response.json()\n  return {\n    messageId: data.result.message_id,\n    chatId: data.result.chat.id,\n    date: data.result.date,\n  }\n}\n",
+      "type": "registry:file",
+      "target": "steps/telegram-send-message.ts"
+    }
+  ]
+}

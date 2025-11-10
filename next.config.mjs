@@ -9,6 +9,14 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  async rewrites() {
+    return [
+      {
+        source: '/r/:path((?!.*\\.json$).*)',
+        destination: '/r/:path.json',
+      },
+    ];
+  },
 }
 
 export default nextConfig

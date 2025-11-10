@@ -4,13 +4,13 @@ import { ArrowRight } from "lucide-react"
 export default function GettingStartedPage() {
   return (
     <div className="min-h-screen bg-background">
-      <div className="container py-8">
+      <div className="container mx-auto py-8">
         <div className="mb-8">
           <Link href="/docs" className="text-sm text-primary hover:underline mb-4 inline-block">
             ← Back to Documentation
           </Link>
           <h1 className="font-bold text-4xl text-foreground mb-2">Getting Started</h1>
-          <p className="text-muted-foreground text-lg">Learn how to use Workflow Registry in your projects</p>
+          <p className="text-muted-foreground text-lg">Learn how to use Workflow Elements in your projects</p>
         </div>
 
         <div className="prose prose-invert max-w-none">

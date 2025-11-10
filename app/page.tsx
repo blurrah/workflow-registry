@@ -15,14 +15,14 @@ const Home = () => {
       .join(" "),
     description: step.description,
     category: step.category || "utilities",
-    author: "Workflow Registry",
-    provider: step.provider,
+    author: "Workflow Elements",
+    integrations: step.integrations,
   }))
 
   return (
     <div className="min-h-screen bg-background">
       {/* Hero Section */}
-      <section className="container py-12 sm:py-24 md:py-32 px-4">
+      <section className="container mx-auto py-12 sm:py-24 md:py-32 px-4">
         <div className="mx-auto flex max-w-[64rem] flex-col items-center gap-4 text-center">
           <div className="inline-flex items-center rounded-full border border-border bg-muted px-3 py-1 text-sm text-muted-foreground">
             <Zap className="mr-2 h-4 w-4 text-primary" />
@@ -53,7 +53,7 @@ const Home = () => {
       </section>
 
       {/* Installation Section */}
-      <section className="container pb-8 sm:pb-16 px-4">
+      <section className="container mx-auto pb-8 sm:pb-16 px-4">
         <div className="mx-auto max-w-[64rem]">
           <div className="rounded-lg border border-border bg-card p-4 sm:p-6">
             <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between gap-4">
@@ -76,7 +76,7 @@ const Home = () => {
       </section>
 
       {/* Featured Steps */}
-      <section className="container pb-8 sm:pb-16 px-4">
+      <section className="container mx-auto pb-8 sm:pb-16 px-4">
         <div className="mx-auto max-w-screen-2xl">
           <div className="flex flex-col sm:flex-row items-start sm:items-center sm:justify-between mb-6 sm:mb-8 gap-4">
             <div>
@@ -98,7 +98,7 @@ const Home = () => {
       </section>
 
       {/* Categories */}
-      <section className="container pb-12 sm:pb-24 px-4">
+      <section className="container mx-auto pb-12 sm:pb-24 px-4">
         <div className="mx-auto max-w-screen-2xl">
           <div className="mb-6 sm:mb-8">
             <h2 className="font-bold text-2xl sm:text-3xl text-foreground">Browse by Category</h2>
@@ -110,7 +110,7 @@ const Home = () => {
 
       {/* Features */}
       <section className="border-t border-border bg-muted/50 py-12 sm:py-24">
-        <div className="container px-4">
+        <div className="container mx-auto px-4">
           <div className="mx-auto max-w-screen-2xl">
             <div className="grid gap-8 sm:gap-12 grid-cols-1 md:grid-cols-3">
               <div className="flex flex-col gap-3">

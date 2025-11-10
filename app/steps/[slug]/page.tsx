@@ -29,7 +29,7 @@ export default async function StepDetailPage({
 
 	return (
 		<div className="min-h-screen bg-background">
-			<div className="container py-8">
+			<div className="container mx-auto py-8">
 				<div className="mb-8">
 					<div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
 						<Link href="/steps" className="hover:text-foreground">
@@ -164,7 +164,11 @@ export default async function StepDetailPage({
 									<span className="text-muted-foreground">$</span>{" "}
 									{installCommand}
 								</div>
-								<Button className="w-full" asChild>
+								<Button className="w-full">
+									<Copy className="mr-2 h-4 w-4" />
+									Copy Install Command
+								</Button>
+								<Button variant="outline" className="w-full" asChild>
 									<Link href="/docs/installation">
 										View Installation Guide
 										<ExternalLink className="ml-2 h-4 w-4" />
@@ -187,7 +191,7 @@ export default async function StepDetailPage({
 								<div>
 									<dt className="text-muted-foreground">Author</dt>
 									<dd className="text-foreground font-medium mt-1">
-										Workflow Registry
+										Workflow Elements
 									</dd>
 								</div>
 								<div>

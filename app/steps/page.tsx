@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { StepCard } from "@/components/step-card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { getAllSteps } from "@/lib/registry"
+import { getAllSteps, getAllIntegrations } from "@/lib/registry"
 import { Badge } from "@/components/ui/badge"
 
 export default function StepsPage() {
@@ -17,25 +17,32 @@ export default function StepsPage() {
       .join(" "),
     description: step.description,
     category: step.category || "utilities",
-    author: "Workflow Registry",
-    provider: step.provider,
+    author: "Workflow Elements",
+    integrations: step.integrations,
   }))
 
-  const [selectedProvider, setSelectedProvider] = useState<string | null>(null)
+  const [selectedIntegration, setSelectedIntegration] = useState<string | null>(null)
 
-  const providers = useMemo(() => {
-    const uniqueProviders = Array.from(new Set(allSteps.map((step) => step.provider).filter(Boolean)))
-    return uniqueProviders.sort()
+  const integrations = useMemo(() => {
+    const integrationMap = new Map<string, number>()
+    allSteps.forEach((step) => {
+      step.integrations?.forEach((integration) => {
+        integrationMap.set(integration, (integrationMap.get(integration) || 0) + 1)
+      })
+    })
+    return Array.from(integrationMap.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
   }, [allSteps])
 
   const filteredSteps = useMemo(() => {
-    if (!selectedProvider) return allSteps
-    return allSteps.filter((step) => step.provider === selectedProvider)
-  }, [allSteps, selectedProvider])
+    if (!selectedIntegration) return allSteps
+    return allSteps.filter((step) => step.integrations?.includes(selectedIntegration))
+  }, [allSteps, selectedIntegration])
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container py-6 sm:py-8 px-4">
+      <div className="container mx-auto py-6 sm:py-8 px-4">
         <div className="mb-6 sm:mb-8">
           <h1 className="font-bold text-3xl sm:text-4xl text-foreground mb-2">All Steps</h1>
           <p className="text-muted-foreground text-base sm:text-lg">Browse and discover reusable workflow steps</p>
@@ -43,26 +50,30 @@ export default function StepsPage() {
 
         <div className="mb-6 space-y-4">
           <div>
-            <h3 className="text-sm font-medium text-foreground mb-3">Filter by Provider</h3>
+            <h3 className="text-sm font-medium text-foreground mb-3">Filter by Integration</h3>
             <div className="flex flex-wrap gap-2">
               <Badge
-                variant={selectedProvider === null ? "default" : "outline"}
+                variant={selectedIntegration === null ? "default" : "outline"}
                 className="cursor-pointer transition-colors"
-                onClick={() => setSelectedProvider(null)}
+                onClick={() => setSelectedIntegration(null)}
               >
                 All ({allSteps.length})
               </Badge>
-              {providers.map((provider) => {
-                const count = allSteps.filter((step) => step.provider === provider).length
+              {integrations.map(({ name, count }) => {
+                const slug = name.toLowerCase().replace(/\s+/g, "-")
                 return (
-                  <Badge
-                    key={provider}
-                    variant={selectedProvider === provider ? "default" : "outline"}
-                    className="cursor-pointer transition-colors"
-                    onClick={() => setSelectedProvider(provider)}
-                  >
-                    {provider} ({count})
-                  </Badge>
+                  <Link key={name} href={`/integrations/${slug}`}>
+                    <Badge
+                      variant={selectedIntegration === name ? "default" : "outline"}
+                      className="cursor-pointer transition-colors hover:bg-primary/10"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        setSelectedIntegration(name)
+                      }}
+                    >
+                      {name} ({count})
+                    </Badge>
+                  </Link>
                 )
               })}
             </div>

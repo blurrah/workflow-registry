@@ -1,4 +1,4 @@
-# Workflow registry
+# Workflow Elements
 
 *Automatically synced with your [v0.app](https://v0.app) deployments*
 

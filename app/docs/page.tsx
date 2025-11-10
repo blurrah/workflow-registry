@@ -38,7 +38,7 @@ const guides = [
 export default function DocsPage() {
   return (
     <div className="min-h-screen bg-background">
-      <div className="container py-8">
+      <div className="container mx-auto py-8">
         <div className="mb-8">
           <h1 className="font-bold text-4xl text-foreground mb-2">Documentation</h1>
           <p className="text-muted-foreground text-lg max-w-2xl leading-relaxed">
@@ -66,10 +66,10 @@ export default function DocsPage() {
         </div>
 
         <div className="mt-12">
-          <h2 className="font-bold text-2xl text-foreground mb-6">What is Workflow Registry?</h2>
+          <h2 className="font-bold text-2xl text-foreground mb-6">What is Workflow Elements?</h2>
           <div className="prose prose-invert max-w-none">
             <p className="text-muted-foreground leading-relaxed mb-4">
-              Workflow Registry is a collection of reusable workflow steps built on top of the Workflow DevKit. Instead
+              Workflow Elements is a collection of reusable workflow steps built on top of the Workflow DevKit. Instead
               of building common workflow functionality from scratch, you can browse, copy, and customize pre-built
               steps for your use case.
             </p>

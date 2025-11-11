@@ -4,7 +4,7 @@ import { Bot, Terminal } from "lucide-react"
 export default function MCPServerPage() {
   return (
     <div className="min-h-screen bg-background">
-      <div className="container py-8">
+      <div className="container mx-auto py-8">
         <div className="mb-8">
           <Link href="/docs" className="text-sm text-primary hover:underline mb-4 inline-block">
             ← Back to Documentation
@@ -47,7 +47,7 @@ export default function MCPServerPage() {
 
               <div>
                 <h3 className="font-semibold text-lg text-foreground mb-2">2. Configure Your AI Assistant</h3>
-                <p className="text-muted-foreground mb-3">Add the workflow registry URL to your MCP configuration:</p>
+                <p className="text-muted-foreground mb-3">Add the Workflow Elements URL to your MCP configuration:</p>
 
                 <div className="rounded-lg border border-border bg-card overflow-hidden mb-3">
                   <div className="border-b border-border bg-muted px-4 py-2">
@@ -96,7 +96,7 @@ export default function MCPServerPage() {
           <section className="mb-12">
             <h2 className="font-bold text-2xl text-foreground mb-4">Usage with AI Assistants</h2>
             <p className="text-muted-foreground mb-4">
-              Once configured, you can ask your AI assistant to interact with the Workflow Registry using natural
+              Once configured, you can ask your AI assistant to interact with Workflow Elements using natural
               language:
             </p>
 

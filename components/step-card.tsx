@@ -9,10 +9,10 @@ interface StepCardProps {
   description: string
   category: string
   author: string
-  provider?: string
+  integrations?: string[]
 }
 
-export function StepCard({ name, title, description, category, author, provider }: StepCardProps) {
+export function StepCard({ name, title, description, category, author, integrations }: StepCardProps) {
   return (
     <Link href={`/steps/${name}`}>
       <Card className="group h-full transition-all hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5">
@@ -24,18 +24,26 @@ export function StepCard({ name, title, description, category, author, provider 
           <CardDescription className="leading-relaxed">{description}</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center justify-between gap-2 flex-wrap">
-            <div className="flex items-center gap-2">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between gap-2 flex-wrap">
               <Badge variant="secondary" className="font-mono text-xs">
                 {category}
               </Badge>
-              {provider && (
-                <Badge variant="outline" className="text-xs">
-                  {provider}
-                </Badge>
-              )}
+              <span className="text-xs text-muted-foreground">{author}</span>
             </div>
-            <span className="text-xs text-muted-foreground">{author}</span>
+            {integrations && integrations.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {integrations.map((integration) => (
+                  <Badge
+                    key={integration}
+                    variant="outline"
+                    className="text-xs bg-primary/5 text-primary border-primary/20"
+                  >
+                    {integration}
+                  </Badge>
+                ))}
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

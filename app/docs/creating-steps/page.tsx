@@ -3,7 +3,7 @@ import Link from "next/link"
 export default function CreatingStepsPage() {
   return (
     <div className="min-h-screen bg-background">
-      <div className="container py-8">
+      <div className="container mx-auto py-8">
         <div className="mb-8">
           <Link href="/docs" className="text-sm text-primary hover:underline mb-4 inline-block">
             ← Back to Documentation

@@ -4,13 +4,13 @@ import { Button } from "@/components/ui/button"
 export default function ContributingPage() {
   return (
     <div className="min-h-screen bg-background">
-      <div className="container py-8">
+      <div className="container mx-auto py-8">
         <div className="mb-8">
           <Link href="/docs" className="text-sm text-primary hover:underline mb-4 inline-block">
             ← Back to Documentation
           </Link>
           <h1 className="font-bold text-4xl text-foreground mb-2">Contributing</h1>
-          <p className="text-muted-foreground text-lg">Help grow the Workflow Registry by contributing your steps</p>
+          <p className="text-muted-foreground text-lg">Help grow Workflow Elements by contributing your steps</p>
         </div>
 
         <div className="prose prose-invert max-w-none">
